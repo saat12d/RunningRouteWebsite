@@ -15,9 +15,15 @@ document.getElementById('route-form').addEventListener('submit', async function(
   
       if (response.ok) {
         const routeData = await response.json();
-        displayRoute(routeData);
-        displayTotalDistance(routeData.total_distance);
+        if (routeData.route) {
+          console.log('Route data received:', routeData); // Debugging log
+          displayRoute(routeData);
+          displayTotalDistance(routeData.total_distance);
+        } else {
+          alert('No route found for the specified distance.');
+        }
       } else {
+        console.error('Error response from server:', response);
         alert('Error calculating route');
       }
     } catch (error) {
@@ -41,15 +47,18 @@ document.getElementById('route-form').addEventListener('submit', async function(
       stopover: false
     }));
   
+    console.log('Waypoints for route:', waypoints); // Debugging log
+  
     directionsService.route({
       origin: new google.maps.LatLng(route.start_location.lat, route.start_location.lng),
       destination: new google.maps.LatLng(route.start_location.lat, route.start_location.lng),
       waypoints: waypoints,
       travelMode: google.maps.TravelMode.WALKING,
-      optimizeWaypoints: true
+      optimizeWaypoints: false // Ensure the waypoints are respected
     }, (result, status) => {
       if (status === google.maps.DirectionsStatus.OK) {
         directionsRenderer.setDirections(result);
+        console.log('Route result:', result); // Debugging log
       } else {
         console.error('Directions request failed due to ' + status);
       }
