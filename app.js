@@ -11,13 +11,13 @@ app.use(express.static('public'));
 
 app.use('/api/route', routePlanner);
 
-const mongoose = require('mongoose');
-mongoose.connect(process.env.MONGO_CONNECTION_URL, {})
+// const mongoose = require('mongoose');
+// mongoose.connect(process.env.MONGO_CONNECTION_URL, {})
 
-const connection = mongoose.connection
-connection.once('open', () => {
-    console.log("DB connected.");
-})
+// const connection = mongoose.connection
+// connection.once('open', () => {
+//     console.log("DB connected.");
+// })
 
 app.get('/', (req, res) => {
     res.render('index.ejs')

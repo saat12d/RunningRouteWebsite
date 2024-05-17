@@ -5,7 +5,7 @@ const apiKey = 'AIzaSyB0Nh3kX7SSHkYgO-AnAJmDrXzRwGUEyMY';
 async function calculateRoute(address, distance) {
   try {
     const startLocation = await geocodeAddress(address);
-    const waypoints = createCircularWaypoints(startLocation, distance);
+    let waypoints = createCircularWaypoints(startLocation, distance);
     const route = await getRoute(startLocation, waypoints);
 
     if (route) {
@@ -70,15 +70,16 @@ function createCircularWaypoints(startLocation, totalDistance) {
   const waypoints = [];
 
   for (let i = 0; i < numWaypoints; i++) {
-    const angle = i * angleIncrement;
+    const angle = i * angleIncrement + (Math.random() * 100 - 5);
     const bearing = angle * (Math.PI / 180);
+    const randomDistance = distanceBetweenPoints * (1 + (Math.random() * 0.2 - 0.1)); // Randomize distance slightly
     const lat1 = startLocation.lat * (Math.PI / 180);
     const lng1 = startLocation.lng * (Math.PI / 180);
 
-    const lat2 = Math.asin(Math.sin(lat1) * Math.cos(distanceBetweenPoints / R) +
-      Math.cos(lat1) * Math.sin(distanceBetweenPoints / R) * Math.cos(bearing));
-    const lng2 = lng1 + Math.atan2(Math.sin(bearing) * Math.sin(distanceBetweenPoints / R) * Math.cos(lat1),
-      Math.cos(distanceBetweenPoints / R) - Math.sin(lat1) * Math.sin(lat2));
+    const lat2 = Math.asin(Math.sin(lat1) * Math.cos(randomDistance / R) +
+    Math.cos(lat1) * Math.sin(randomDistance / R) * Math.cos(bearing));
+  const lng2 = lng1 + Math.atan2(Math.sin(bearing) * Math.sin(randomDistance / R) * Math.cos(lat1),
+    Math.cos(randomDistance / R) - Math.sin(lat1) * Math.sin(lat2));
 
     waypoints.push({
       lat: lat2 * (180 / Math.PI),
@@ -88,6 +89,25 @@ function createCircularWaypoints(startLocation, totalDistance) {
 
   return waypoints;
 }
+
+async function snapToRoads(waypoints) {
+    const path = waypoints.map(wp => `${wp.lat},${wp.lng}`).join('|');
+    const response = await axios.get('https://roads.googleapis.com/v1/nearestRoads', {
+      params: {
+        points: path,
+        key: apiKey,
+      }
+    });
+  
+    if (response.data.snappedPoints) {
+      return response.data.snappedPoints.map(point => ({
+        lat: point.location.latitude,
+        lng: point.location.longitude
+      }));
+    } else {
+      throw new Error('Roads API request failed');
+    }
+  }
 
 function calculateTotalDistance(legs) {
   let totalDistance = 0;
