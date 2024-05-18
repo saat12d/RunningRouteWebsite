@@ -3,8 +3,6 @@ const router = express.Router();
 const mapsService = require('../mapsHelper');
 
 router.post('/', async (req, res) => {
-    console.log('hit')
-
   const { address, distance } = req.body;
   try {
     const route = await mapsService.calculateRoute(address, distance);
