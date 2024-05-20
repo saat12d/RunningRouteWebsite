@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const apiKey = 'AIzaSyB0Nh3kX7SSHkYgO-AnAJmDrXzRwGUEyMY';
+const apiKey = 'blank';
 const TOLERANCE = 0.1;
 
 async function calculateRoute(address, targetDistance) {
